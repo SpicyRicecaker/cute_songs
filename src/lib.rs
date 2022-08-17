@@ -73,3 +73,10 @@ impl Config {
     }
   }
 }
+
+#[derive(Default)]
+pub struct Stats {
+    pub downloaded: u32, 
+    pub skipped: u32,
+    pub failed: u32
+}

@@ -1,4 +1,4 @@
-use cute_songs::Config;
+use cute_songs::{Config, Stats};
 use serde_json::{Result, Value};
 use std::error::Error;
 use std::process::Command;
@@ -27,8 +27,7 @@ fn run(config: Config) -> std::result::Result<(), Box<dyn Error>> {
             .filter_map(|n| n.ok())
             .collect::<Vec<String>>();
 
-        let mut downloaded_song_count = 0;
-        let mut repeat_song_count = 0;
+        let mut stats = Stats::default();
 
         for video in pl_info
             .get("entries")
@@ -53,15 +52,23 @@ fn run(config: Config) -> std::result::Result<(), Box<dyn Error>> {
                     .arg("%(title)s-%(id)s.%(ext)s")
                     .arg("-f")
                     .arg("bestaudio")
+                    // fixes bug where ids with hyphens in them are ignored
+                    .arg("--")
                     .arg(id)
                     .spawn()
                     .unwrap();
 
-                d.wait().unwrap();
+                match d.wait().unwrap().code().unwrap() {
+                    0 => {
+                        stats.downloaded += 1;
+                    }
+                    _ => {
+                        stats.failed += 1;
+                    }
+                }
 
-                downloaded_song_count += 1;
             } else {
-                repeat_song_count += 1;
+                stats.skipped += 1;
 
                 // should install a logging crate, since we don't always want to flood the user with messages
                 println!("skipped downloading `{}`", title);
@@ -69,10 +76,11 @@ fn run(config: Config) -> std::result::Result<(), Box<dyn Error>> {
         }
 
         println!(
-            "success. processed {} songs in total. skipped {}, downloaded {}",
-            downloaded_song_count + repeat_song_count,
-            repeat_song_count,
-            downloaded_song_count
+            "success. processed {} songs in total. skipped {}, downloaded {}, failed {}",
+            stats.downloaded + stats.skipped + stats.failed,
+            stats.skipped,
+            stats.downloaded,
+            stats.failed
         );
     } else {
         eprintln!("error occured with yt-dlp:");
