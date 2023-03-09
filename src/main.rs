@@ -1,8 +1,8 @@
 use cute_songs::{Config, Stats};
-use serde_json::{Result, Value};
+use serde_json::Value;
 use std::error::Error;
 use std::process::Command;
-use std::{fs, path::Path};
+use std::fs;
 
 fn run(config: Config) -> std::result::Result<(), Box<dyn Error>> {
     // try to get json using yt-dlp
@@ -66,7 +66,6 @@ fn run(config: Config) -> std::result::Result<(), Box<dyn Error>> {
                         stats.failed += 1;
                     }
                 }
-
             } else {
                 stats.skipped += 1;
 

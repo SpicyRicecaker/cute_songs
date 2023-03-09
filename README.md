@@ -7,6 +7,7 @@ This app requires the installation of [yt-dlp](https://github.com/yt-dlp/yt-dlp)
 ```shell
 # create a directory to store songs, or alternatively you can skip this line and use an existing directory
 mkdir songs
+# download songs based off playlist urls to `cute songs` by ambition, to the previously specified song location
 cute_songs https://youtube.com/playlist?list=PLBML8SXyfQ6fJ_GJfCh9c2E6lIdYy3LIl --song-directory songs
 ```
 

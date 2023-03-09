@@ -62,14 +62,9 @@ impl Config {
     if playlist_url.is_none() {
         panic!("playlist_url not provided");
     }
-
-    if let Some(song_directory) = song_directory && let Some(playlist_url) = playlist_url {
-      Self {
-        song_directory,
-        playlist_url
-      }
-    } else {
-        unreachable!();
+    Self {
+        song_directory: song_directory.unwrap(),
+        playlist_url: playlist_url.unwrap()
     }
   }
 }
