@@ -1,3 +1,4 @@
+use clap::Parser;
 use cute_songs::{Config, Stats};
 use serde_json::Value;
 use std::error::Error;
@@ -11,7 +12,7 @@ fn run(config: Config) -> std::result::Result<(), Box<dyn Error>> {
         .arg("--dump-single-json")
         .arg("--flat-playlist")
         .arg(config.playlist_url)
-        .output()?;
+        .output().expect("Error running `yt-dlp` command. Is `yt-dlp` installed and accessible?");
 
     if raw_playlist_json.status.success() {
         // create an object out of the json
@@ -43,7 +44,7 @@ fn run(config: Config) -> std::result::Result<(), Box<dyn Error>> {
                 .any(|n| n.contains(id) || n.contains(title))
             {
                 // download the song to the directory, making sure to include the title in the song name
-                println!("downloading `{}`", title);
+                println!("downloading `{title}`");
 
                 let mut d = Command::new("yt-dlp")
                     .arg("-P")
@@ -70,7 +71,7 @@ fn run(config: Config) -> std::result::Result<(), Box<dyn Error>> {
                 stats.skipped += 1;
 
                 // should install a logging crate, since we don't always want to flood the user with messages
-                println!("skipped downloading `{}`", title);
+                println!("skipped downloading `{title}`");
             }
         }
 
@@ -93,8 +94,9 @@ fn run(config: Config) -> std::result::Result<(), Box<dyn Error>> {
 }
 
 fn main() {
-    let config = Config::new(std::env::args());
+    let config = Config::parse();
+    
     if let Err(e) = run(config) {
-        eprintln!("{}", e);
+        eprintln!("{e}");
     }
 }

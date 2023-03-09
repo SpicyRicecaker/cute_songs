@@ -14,60 +14,17 @@
 //! - **required** `--song-directory [song directory]` describes where the current songs will be sourced *from* and downloaded *to*
 //! - **required** `[playlist url]`
 
+use clap::Parser;
+
+#[derive(Parser, Debug)]
+#[command(author, version, about, long_about = None)]
 pub struct Config {
-  pub song_directory: String,
-  pub playlist_url: String
+    // #[arg(short, long)]
+    pub playlist_url: String,
+    #[arg(short, long)]
+    pub song_directory: String,
 }
 
-impl Config {
-  pub fn new(mut args: std::env::Args) -> Self {
-    args.next();
-
-    // a hashset seems to be the best way to do this
-    let mut song_directory = None;
-    let mut playlist_url = None;
-
-    while let Some(arg) = args.next() {
-        match arg.as_str() {
-            "--song-directory" => {
-                if song_directory.is_some() {
-                    panic!("already set `--song-directory`")
-                }
-                if let Some(arg) = args.next() {
-                    song_directory = Some(arg);
-                } else {
-                    panic!("no song listed after --song-directory")
-                }
-            }
-            "--help" => {
-                println!(r##"--song-directory [song] // provide a song directory
-                --help // print this message
-                [url] // provide a url to a playlist
-                "##);
-                std::process::exit(0);
-            }
-            _ => {
-                if playlist_url.is_some() {
-                    panic!("unexpected argument {}", arg)
-                }
-                playlist_url = Some(arg);
-            }
-        }
-    }
-
-    if song_directory.is_none() {
-        panic!("--song-directory [song] not provided");
-    }
-
-    if playlist_url.is_none() {
-        panic!("playlist_url not provided");
-    }
-    Self {
-        song_directory: song_directory.unwrap(),
-        playlist_url: playlist_url.unwrap()
-    }
-  }
-}
 
 #[derive(Default)]
 pub struct Stats {
